@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="io.renren.modules.performance.dao.DebugCaseReportsDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="io.renren.modules.performance.entity.DebugCaseReportsEntity" id="debugCaseReportsMap">
+        <result property="reportId" column="report_id"/>
+        <result property="caseId" column="case_id"/>
+        <result property="fileId" column="file_id"/>
+        <result property="originName" column="origin_name"/>
+        <result property="reportName" column="report_name"/>
+        <result property="fileSize" column="file_size"/>
+        <result property="status" column="status"/>
+        <result property="remark" column="remark"/>
+        <result property="addTime" column="add_time"/>
+        <result property="addBy" column="add_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="updateBy" column="update_by"/>
+    </resultMap>
+
+
+</mapper>
