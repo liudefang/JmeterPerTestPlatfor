@@ -1,9 +1,6 @@
 package io.renren.modules.performance.controller;
 
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import io.renren.common.exception.RRException;
 import io.renren.modules.oss.cloud.OSSFactory;
@@ -124,18 +121,26 @@ public class PerformanceCaseController {
 
         Map<String, Object> query = new HashMap<>();
         if (2 == performanceTestUtils.ReplaceFileKey()) {
-            // caseId加入搜索条件
+            // caseId加入搜索条件，允许在不同用例间上传同名文件
+            query.put("caseId", caseId);
+
         }
+//        query.put("originName", originName);
+//        // fileList中最多有一条记录
+//        //List<PerformanceCaseFileEntity> fileList = performanceCaseFileService.queryList(query);
+//
+//
+//       //String url = OSSFactory.build().uploadSuffix(MultipartFile.getBytes(), suffix);
+//
+//        //保存文件信息
+//        PerformanceCaseFileEntity fileEntity = new PerformanceCaseFileEntity();
+//        //fileEntity.setUrl(url);
+//        fileEntity.setCreateDate(new Date());
+//        performanceCaseFileService.save(fileEntity);
 
-        String url = OSSFactory.build().uploadSuffix(file.getBytes(), suffix);
+        //return R.ok().put("url", url);
+        return null;
 
-        //保存文件信息
-        PerformanceCaseFileEntity fileEntity = new PerformanceCaseFileEntity();
-        fileEntity.setUrl(url);
-        fileEntity.setCreateDate(new Date());
-        performanceCaseFileService.save(fileEntity);
-
-        return R.ok().put("url", url);
     }
 
 }

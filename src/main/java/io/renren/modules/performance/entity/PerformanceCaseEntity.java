@@ -37,11 +37,11 @@ public class PerformanceCaseEntity implements Serializable {
 	 */
 	private String module;
 	/**
-	 * 状态  0：禁用   1：正常
+	 * 状态  0：未执行(停止状态)   1：正在运行
 	 */
-	private Integer status;
+	private Integer status = 0;
 	/**
-	 * 拥有者名字
+	 * 操作人
 	 */
 	private String operator;
 	/**
@@ -51,11 +51,12 @@ public class PerformanceCaseEntity implements Serializable {
 	/**
 	 * 优先级用于过滤
 	 */
-	private Integer priority;
+	private String priority;
 	/**
 	 * master节点保存用例信息的文件夹
 	 */
 	private String caseDir;
+
 	/**
 	 * 创建时间
 	 */
@@ -63,7 +64,7 @@ public class PerformanceCaseEntity implements Serializable {
 	/**
 	 * 提交用户id
 	 */
-	private Long addBy;
+	private String addBy;
 	/**
 	 * 修改时间
 	 */
@@ -71,6 +72,111 @@ public class PerformanceCaseEntity implements Serializable {
 	/**
 	 * 修改用户id
 	 */
-	private Long updateBy;
+	private String updateBy;
+
+
+	public Long getCaseId() {
+		return caseId;
+	}
+
+	public void setCaseId(Long caseId) {
+		this.caseId = caseId;
+	}
+
+	public String getCaseName() {
+		return caseName;
+	}
+
+	public void setCaseName(String caseName) {
+		this.caseName = caseName;
+	}
+
+	public String getProject() {
+		return project;
+	}
+
+	public void setProject(String project) {
+		this.project = project;
+	}
+
+	public String getModule() {
+		return module;
+	}
+
+	public void setModule(String module) {
+		this.module = module;
+	}
+
+	public String getRemark() {
+		return remark;
+	}
+
+	public void setRemark(String remark) {
+		this.remark = remark;
+	}
+
+	public String getOperator() {
+		return operator;
+	}
+
+	public void setOperator(String operator) {
+		this.operator = operator;
+	}
+
+	public Integer getStatus() {
+		return status;
+	}
+
+	public void setStatus(Integer status) {
+		this.status = status;
+	}
+
+	public String getPriority() {
+		return priority;
+	}
+
+	public void setPriority(String priority) {
+		this.priority = priority;
+	}
+
+	public String getAddBy() {
+		return addBy;
+	}
+
+	public void setAddBy(String addBy) {
+		this.addBy = addBy;
+	}
+
+	public String getUpdateBy() {
+		return updateBy;
+	}
+
+	public void setUpdateBy(String updateBy) {
+		this.updateBy = updateBy;
+	}
+
+	public Date getAddTime() {
+		return addTime;
+	}
+
+	public void setAddTime(Date addTime) {
+		this.addTime = addTime;
+	}
+
+	public Date getUpdateTime() {
+		return updateTime;
+	}
+
+	public void setUpdateTime(Date updateTime) {
+		this.updateTime = updateTime;
+	}
+
+	public String getCaseDir() {
+		return caseDir;
+	}
+
+	public void setCaseDir(String caseDir) {
+		this.caseDir = caseDir;
+	}
 
 }

@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import io.renren.common.utils.PageUtils;
 import io.renren.modules.performance.entity.PerformanceCaseEntity;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -21,5 +22,25 @@ public interface PerformanceCaseService extends IService<PerformanceCaseEntity> 
      * 根据ID，查询性能测试用例
      */
     PerformanceCaseEntity queryObject(Long caseId);
+
+    /**
+     * 查询性能测试用例列表
+     */
+    List<PerformanceCaseEntity> queryList(Map<String, Object> map);
+
+    /**
+     * 查询总数
+     */
+    int queryTotal(Map<String, Object> map);
+    /**
+     * 批量删除
+     */
+    void deleteBatch(Long[] caseIds);
+
+    /**
+     * 批量更新性能测试用例信息
+     */
+    int updateBatch(Long[] caseIds, int status);
+
 }
 

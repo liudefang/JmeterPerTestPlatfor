@@ -138,7 +138,7 @@ public class PerformanceTestUtils {
         return sysConfigService.getValue(MASTER_JMETER_HOME_KEY);
     }
 
-    public String getCasePath() {
+    public static String getCasePath() {
         return sysConfigService.getValue(MASTER_JMETER_CASES_HOME_KEY);
     }
 
