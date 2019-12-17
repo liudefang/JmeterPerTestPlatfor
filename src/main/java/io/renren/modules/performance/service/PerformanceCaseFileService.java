@@ -16,9 +16,8 @@ import java.util.Map;
  * @email sunlightcs@gmail.com
  * @date 2019-12-05 15:27:50
  */
-public interface PerformanceCaseFileService extends IService<PerformanceCaseFileEntity> {
+public interface PerformanceCaseFileService {
 
-    PageUtils queryPage(Map<String, Object> params);
 
     /**
      * 根据ID，查询文件

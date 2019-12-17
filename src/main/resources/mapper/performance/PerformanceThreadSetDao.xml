@@ -16,19 +16,19 @@
         <result property="fileId" column="file_id"/>
     </resultMap>-->
     <select id="queryObject" resultType="io.renren.modules.performance.entity.PerformanceThreadSetEntity">
-		select * from test_stress_thread_set where set_id = #{value}
+		select * from test_performance_thread_set where set_id = #{value}
 	</select>
     <select id="queryListParentId" resultType="io.renren.modules.performance.entity.PerformanceThreadSetEntity">
-		select * from test_stress_thread_set where parent_id = #{parentId} order by order_num asc
+		select * from test_performance_thread_set where parent_id = #{parentId} order by order_num asc
 	</select>
 
     <select id="queryNotSetList" resultType="io.renren.modules.performance.entity.PerformanceThreadSetEntity">
-		select * from test_stress_thread_set where type != 2 order by order_num asc
+		select * from test_performance_thread_set where type != 2 order by order_num asc
 	</select>
 
     <select id="queryList" resultType="io.renren.modules.performance.entity.PerformanceThreadSetEntity">
-        select m.*,(select p.name from test_stress_thread_set p where p.set_id = m.parent_id) as parentName
-        from test_stress_thread_set m
+        select m.*,(select p.name from test_performance_thread_set p where p.set_id = m.parent_id) as parentName
+        from test_performance_thread_set m
         <where>
             <if test="fileids != null and fileids.size() >0">
                 m.file_id in
@@ -52,16 +52,16 @@
     </select>
 
     <select id="queryListByFileId" resultType="io.renren.modules.performance.entity.PerformanceThreadSetEntity">
- 		select * from test_stress_thread_set where file_id = #{fileId}
+ 		select * from test_performance_thread_set where file_id = #{fileId}
          order by order_num asc
     </select>
 
     <select id="queryTotal" resultType="int">
-		select count(*) from test_stress_thread_set
+		select count(*) from test_performance_thread_set
 	</select>
 
     <insert id="save" parameterType="io.renren.modules.performance.entity.PerformanceThreadSetEntity">
-		insert into test_stress_thread_set
+		insert into test_performance_thread_set
 		(
 			`set_id`,
 			`parent_id`,
@@ -88,7 +88,7 @@
 	</insert>
 
     <insert id="saveBatch" parameterType="io.renren.modules.performance.entity.PerformanceThreadSetEntity">
-        insert into test_stress_thread_set
+        insert into test_performance_thread_set
         (
         `set_id`,
         `parent_id`,
@@ -115,7 +115,7 @@
     </insert>
 
     <update id="update" parameterType="io.renren.modules.performance.entity.PerformanceThreadSetEntity">
-        update test_stress_thread_set
+        update test_performance_thread_set
         <set>
             <if test="parentId != null">`parent_id` = #{parentId}, </if>
             <if test="name != null">`name` = #{name}, </if>
@@ -130,22 +130,22 @@
     </update>
 
     <delete id="delete">
-		delete from test_stress_thread_set where set_id = #{value}
+		delete from test_performance_thread_set where set_id = #{value}
 	</delete>
 
     <delete id="deleteBatch">
-        delete from test_stress_thread_set where set_id in
+        delete from test_performance_thread_set where set_id in
         <foreach item="setId" collection="array" open="(" separator="," close=")">
             #{setId}
         </foreach>
     </delete>
 
     <delete id="deleteByFileId">
-		delete from test_stress_thread_set where file_id = #{value}
+		delete from test_performance_thread_set where file_id = #{value}
 	</delete>
 
     <delete id="deleteBatchByFileIds">
-        delete from test_stress_thread_set where file_id in
+        delete from test_performance_thread_set where file_id in
         <foreach item="fileIds" collection="array" open="(" separator="," close=")">
             #{fileIds}
         </foreach>

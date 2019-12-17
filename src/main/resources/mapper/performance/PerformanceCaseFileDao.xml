@@ -22,11 +22,11 @@
         <result property="updateBy" column="update_by"/>
     </resultMap>-->
     <select id="queryObject" resultType="io.renren.modules.performance.entity.PerformanceCaseFileEntity">
-        select * from test_stress_case_file where file_id = #{value}
+        select * from test_performance_case_file where file_id = #{value}
     </select>
 
     <select id="queryObjectForClone" resultType="io.renren.modules.performance.entity.PerformanceCaseFileEntity">
-        select * from test_stress_case_file where status = -1
+        select * from test_performance_case_file where status = -1
         <if test="slaveId != null">
             and slave_id = #{slaveId}
         </if>
@@ -36,8 +36,8 @@
     </select>
 
     <select id="queryList" resultType="io.renren.modules.performance.entity.PerformanceCaseFileEntity">
-        --         select * from test_stress_case_file where status > -1
-        SELECT t1.*, t2.case_name FROM test_stress_case_file t1, test_stress_case t2 where t1.status > -1 and t1.case_id = t2.case_id
+        --         select * from test_performance_case_file where status > -1
+        SELECT t1.*, t2.case_name FROM test_performance_case_file t1, test_performance_case t2 where t1.status > -1 and t1.case_id = t2.case_id
         <if test="caseId != null and caseId.trim() != ''">
             and t1.case_id = #{caseId}
         </if>
@@ -58,21 +58,21 @@
     </select>
 
     <select id="queryListForDelete" resultType="io.renren.modules.performance.entity.PerformanceCaseFileEntity">
-        select * from test_stress_case_file where status = -1
+        select * from test_performance_case_file where status = -1
         <if test="originName != null and originName.trim() != ''">
             and origin_name like concat('', #{originName}, '%')
         </if>
     </select>
 
     <select id="queryTotal" resultType="int">
-        select count(1) from test_stress_case_file where status > -1
+        select count(1) from test_performance_case_file where status > -1
         <if test="caseId != null and caseId.trim() != ''">
             and case_id = #{caseId}
         </if>
     </select>
 
     <delete id="deleteBatchByCaseIds">
-        delete from test_stress_case_file where case_id in
+        delete from test_performance_case_file where case_id in
         <foreach item="caseIds" collection="array" open="(" separator="," close=")">
             #{caseIds}
         </foreach>
@@ -80,7 +80,7 @@
 
     <insert id="save" parameterType="io.renren.modules.performance.entity.PerformanceCaseFileEntity" useGeneratedKeys="true"
             keyProperty="fileId">
-        insert into test_stress_case_file
+        insert into test_performance_case_file
         (
         `case_id`,
         `slave_id`,
@@ -103,7 +103,7 @@
     </insert>
 
     <update id="update" parameterType="io.renren.modules.performance.entity.PerformanceCaseFileEntity">
-        update test_stress_case_file
+        update test_performance_case_file
         <set>
             <if test="caseId != null">`case_id` = #{caseId},</if>
             <if test="slaveId != null">`slave_id` = #{slaveId},</if>
@@ -122,7 +122,7 @@
     </update>
 
     <update id="updateStatusBatch">
-        update test_stress_case_file
+        update test_performance_case_file
         <set>
             <if test="reportStatus != null">`report_status` = #{reportStatus},</if>
             <if test="webchartStatus != null">`webchart_status` = #{webchartStatus},</if>
@@ -138,14 +138,14 @@
 
     <!--&lt;!&ndash; 批量更新xx &ndash;&gt;-->
     <!--<update id="updateBatch">-->
-    <!--update test_stress_case set status = #{status} where case_id in-->
+    <!--update test_performance_case set status = #{status} where case_id in-->
     <!--<foreach item="caseId" collection="list"  open="(" separator="," close=")">-->
     <!--#{caseId}-->
     <!--</foreach>-->
     <!--</update>-->
 
     <delete id="deleteBatch">
-        delete from test_stress_case_file where file_id in
+        delete from test_performance_case_file where file_id in
         <foreach item="fileIds" collection="array" open="(" separator="," close=")">
             #{fileIds}
         </foreach>

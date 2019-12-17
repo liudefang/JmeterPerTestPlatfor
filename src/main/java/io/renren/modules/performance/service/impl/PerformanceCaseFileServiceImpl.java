@@ -2,13 +2,16 @@ package io.renren.modules.performance.service.impl;
 
 import io.renren.common.exception.RRException;
 import io.renren.modules.performance.dao.PerformanceCaseDao;
+import io.renren.modules.performance.dao.PerformanceThreadSetDao;
 import io.renren.modules.performance.entity.PerformanceCaseEntity;
 import io.renren.modules.performance.service.PerformanceCaseService;
+import io.renren.modules.performance.service.PerformanceThreadSetService;
 import io.renren.modules.performance.utils.PerformanceTestUtils;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.dom4j.DocumentException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -31,7 +34,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 
 @Service("performanceCaseFileService")
-public class PerformanceCaseFileServiceImpl extends ServiceImpl<PerformanceCaseFileDao, PerformanceCaseFileEntity> implements PerformanceCaseFileService {
+public class PerformanceCaseFileServiceImpl implements PerformanceCaseFileService {
 
     Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -68,37 +71,42 @@ public class PerformanceCaseFileServiceImpl extends ServiceImpl<PerformanceCaseF
      *
      * 写成static代码块，也是因为类加载（第一次请求时），才会初始化并初始化一次。这也是符合逻辑的。
      */
+    @Autowired
+    private PerformanceCaseFileDao performanceCaseFileDao;
 
-    @Override
-    public PageUtils queryPage(Map<String, Object> params) {
-        IPage<PerformanceCaseFileEntity> page = this.page(
-                new Query<PerformanceCaseFileEntity>().getPage(params),
-                new QueryWrapper<PerformanceCaseFileEntity>()
-        );
+    @Autowired
+    private PerformanceCaseDao performanceCaseDao;
 
-        return new PageUtils(page);
-    }
+    @Autowired
+    private PerformanceTestUtils performanceTestUtils;
+
+    @Autowired
+    private PerformanceThreadSetDao performanceThreadSetDao;
+
+    @Autowired
+    private PerformanceThreadSetService performanceThreadSet;
+
 
     @Override
     public PerformanceCaseFileEntity queryObject(Long fileId) {
-        return queryObject(fileId);
+        return performanceCaseFileDao.queryObject(fileId);
     }
 
     @Override
     public List<PerformanceCaseFileEntity> queryList(Map<String, Object> map) {
-        return queryList(map);
+        return performanceCaseFileDao.queryList(map);
     }
 
     @Override
     public List<PerformanceCaseFileEntity> queryList(Long caseId) {
         Map query = new HashMap<>();
         query.put("caseId", caseId.toString());
-        return queryList(query);
+        return performanceCaseFileDao.queryList(query);
     }
 
     @Override
     public int queryTotal(Map<String, Object> map) {
-        return queryTotal(map);
+        return performanceCaseFileDao.queryTotal(map);
     }
 
 
@@ -124,21 +132,27 @@ public class PerformanceCaseFileServiceImpl extends ServiceImpl<PerformanceCaseF
         } else {
             // 保存文件，同时解决第一次保存文件时实体没有写入用例名称
             stressCaseFile.setCaseName(stressCase.getCaseName());
-            save(stressCaseFile);
+            performanceCaseFileDao.save(stressCaseFile);
         }
         // 肯定存在已有的用例信息
-        PerformanceCaseService.update(stressCase);
-        PerformanceTestUtils.saveFile(file, filePath);
+        performanceCaseDao.update(stressCase);
+        performanceTestUtils.saveFile(file, filePath);
         // 对jmx脚本将线程组配置信息入库(默认不入库)
-        if(PerformanceTestUtils.isGetThreadGroup() && filePath.substring(filePath.length()-3).equals("jmx")){
-            // 入库前清理已有配置项
-
+        if(performanceTestUtils.isGetThreadGroup() && filePath.substring(filePath.length()-3).equals("jmx")){
+            try {
+                // 入库前清理已有配置项
+                performanceThreadSetDao.deleteByFileId(stressCaseFile.getFileId());
+                performanceThreadSet.jmxSaveNodes(filePath, stressCaseFile);
+            } catch (DocumentException e){
+                e.printStackTrace();
+            }
         }
+
     }
 
     @Override
     public void update(PerformanceCaseFileEntity perTestFile) {
-        update(perTestFile);
+        performanceCaseFileDao.update(perTestFile);
 
     }
 
@@ -151,8 +165,8 @@ public class PerformanceCaseFileServiceImpl extends ServiceImpl<PerformanceCaseF
             throw new RRException("获取上传文件的MD5失败!", e);
         }
         update(perTestCaseFile);
-        PerformanceCaseService.update(perTestCase);
-        PerformanceTestUtils.saveFile(file, filePath);
+        performanceCaseDao.update(perTestCase);
+        performanceTestUtils.saveFile(file, filePath);
 
     }
 

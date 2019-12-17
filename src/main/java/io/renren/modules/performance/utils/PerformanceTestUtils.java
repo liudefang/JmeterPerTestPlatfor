@@ -138,7 +138,7 @@ public class PerformanceTestUtils {
         return sysConfigService.getValue(MASTER_JMETER_HOME_KEY);
     }
 
-    public static String getCasePath() {
+    public  String getCasePath() {
         return sysConfigService.getValue(MASTER_JMETER_CASES_HOME_KEY);
     }
 
@@ -240,7 +240,7 @@ public class PerformanceTestUtils {
     /**
      * 保存文件
      */
-    public static void saveFile(MultipartFile multipartFile, String filePath) {
+    public void saveFile(MultipartFile multipartFile, String filePath) {
         try {
             File file = new File(filePath);
             FileUtils.forceMkdirParent(file);

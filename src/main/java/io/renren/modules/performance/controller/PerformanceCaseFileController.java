@@ -1,8 +1,13 @@
 package io.renren.modules.performance.controller;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
+import io.renren.common.annotation.SysLog;
+import io.renren.common.validator.ValidatorUtils;
+import io.renren.modules.performance.utils.PerformanceTestUtils;
+import io.renren.modules.performance.utils.QueryList;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -32,57 +37,60 @@ public class PerformanceCaseFileController {
     private PerformanceCaseFileService performanceCaseFileService;
 
     /**
-     * 列表
+     * 参数化文件，用例文件列表
      */
     @RequestMapping("/list")
     @RequiresPermissions("performance:performancecasefile:list")
     public R list(@RequestParam Map<String, Object> params){
-        PageUtils page = performanceCaseFileService.queryPage(params);
+        QueryList query = new QueryList(PerformanceTestUtils.filterParms(params));
+        List<PerformanceCaseFileEntity> jobList = performanceCaseFileService.queryList(query);
+        int total = performanceCaseFileService.queryTotal(query);
 
-        return R.ok().put("page", page);
+        PageUtils pageUtils = new PageUtils(jobList, total, query.getLimit(), query.getPage());
+
+
+        return R.ok().put("page", pageUtils);
     }
 
 
     /**
-     * 信息
+     * 查询具体文件信息
      */
     @RequestMapping("/info/{fileId}")
     @RequiresPermissions("performance:performancecasefile:info")
     public R info(@PathVariable("fileId") Long fileId){
-		PerformanceCaseFileEntity performanceCaseFile = performanceCaseFileService.getById(fileId);
+		PerformanceCaseFileEntity performanceCaseFile = performanceCaseFileService.queryObject(fileId);
 
         return R.ok().put("performanceCaseFile", performanceCaseFile);
     }
 
-    /**
-     * 保存
-     */
-    @RequestMapping("/save")
-    @RequiresPermissions("performance:performancecasefile:save")
-    public R save(@RequestBody PerformanceCaseFileEntity performanceCaseFile){
-		performanceCaseFileService.save(performanceCaseFile);
-
-        return R.ok();
-    }
 
     /**
-     * 修改
+     * 修改性能测试用例脚本文件
      */
+    @SysLog("修改性能测试用例脚本文件")
     @RequestMapping("/update")
-    @RequiresPermissions("performance:performancecasefile:update")
+    @RequiresPermissions("performance:performancecasefile:fileUpdate")
     public R update(@RequestBody PerformanceCaseFileEntity performanceCaseFile){
-		performanceCaseFileService.updateById(performanceCaseFile);
+        ValidatorUtils.validateEntity(performanceCaseFile);
+
+        if(performanceCaseFile.getFileIdList() != null && performanceCaseFile.getFileIdList().length > 0){
+            performanceCaseFileService.updateStatusBatch(performanceCaseFile);
+        } else {
+            performanceCaseFileService.update(performanceCaseFile);
+        }
 
         return R.ok();
     }
 
     /**
-     * 删除
+     * 删除指定文件
      */
+    @SysLog("删除指定文件")
     @RequestMapping("/delete")
-    @RequiresPermissions("performance:performancecasefile:delete")
+    @RequiresPermissions("performance:performancecasefile:fileDelete")
     public R delete(@RequestBody Long[] fileIds){
-		performanceCaseFileService.removeByIds(Arrays.asList(fileIds));
+		performanceCaseFileService.deleteBatch(fileIds);
 
         return R.ok();
     }

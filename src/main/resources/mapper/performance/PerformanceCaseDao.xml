@@ -20,11 +20,11 @@
         <result property="updateBy" column="update_by"/>
     </resultMap>-->
     <select id="queryObject" resultType="io.renren.modules.performance.entity.PerformanceCaseEntity">
-		select * from test_stress_case where case_id = #{value}
+		select * from test_performance_case where case_id = #{value}
 	</select>
 
     <select id="queryList" resultType="io.renren.modules.performance.entity.PerformanceCaseEntity">
-        select * from test_stress_case
+        select * from test_performance_case
         <where>
             <if test="caseName != null and caseName.trim() != ''">
                 case_name like concat('%', #{caseName}, '%')
@@ -44,7 +44,7 @@
     </select>
 
     <select id="queryTotal" resultType="int">
-        select count(1) from test_stress_case
+        select count(1) from test_performance_case
         <where>
             <if test="caseName != null and caseName.trim() != ''">
                 case_name like concat('%', #{caseName}, '%')
@@ -54,7 +54,7 @@
 
     <insert id="save" parameterType="io.renren.modules.performance.entity.PerformanceCaseEntity" useGeneratedKeys="true"
             keyProperty="caseId">
-		insert into test_stress_case
+		insert into test_performance_case
 		(
 			`case_name`,
 			`project`,
@@ -81,7 +81,7 @@
 	</insert>
 
     <update id="update" parameterType="io.renren.modules.performance.entity.PerformanceCaseEntity">
-        update test_stress_case
+        update test_performance_case
         <set>
             <if test="caseName != null">`case_name` = #{caseName},</if>
             <if test="project != null">`project` = #{project},</if>
@@ -98,14 +98,14 @@
 
     <!-- 批量更新状态 -->
     <update id="updateBatch">
-        update test_stress_case set status = #{status} where case_id in
+        update test_performance_case set status = #{status} where case_id in
         <foreach item="caseId" collection="list" open="(" separator="," close=")">
             #{caseId}
         </foreach>
     </update>
 
     <delete id="deleteBatch">
-        delete from test_stress_case where case_id in
+        delete from test_performance_case where case_id in
         <foreach item="caseId" collection="array" open="(" separator="," close=")">
             #{caseId}
         </foreach>

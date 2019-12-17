@@ -6,11 +6,10 @@ import java.util.*;
 import io.renren.common.exception.RRException;
 import io.renren.common.utils.DateUtils;
 import io.renren.common.validator.ValidatorUtils;
-import io.renren.modules.oss.cloud.OSSFactory;
-import io.renren.modules.oss.entity.SysOssEntity;
 import io.renren.modules.performance.entity.PerformanceCaseFileEntity;
 import io.renren.modules.performance.service.PerformanceCaseFileService;
 import io.renren.modules.performance.utils.PerformanceTestUtils;
+import io.renren.modules.performance.utils.QueryList;
 import org.apache.commons.lang.StringUtils;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +27,6 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
  * 性能测试用例
  *
  * @author mike.liu
- * @email sunlightcs@gmail.com
  * @date 2019-12-05 15:27:50
  */
 @RestController
@@ -44,24 +42,29 @@ public class PerformanceCaseController {
     private PerformanceTestUtils performanceTestUtils;
 
     /**
-     * 列表
+     * 性能测试用例列表
      */
     @RequestMapping("/list")
     @RequiresPermissions("performance:performancecase:list")
     public R list(@RequestParam Map<String, Object> params){
-        PageUtils page = performanceCaseService.queryPage(params);
+        //查询列表数据
+        QueryList query = new QueryList(PerformanceTestUtils.filterParms(params));
+        List<PerformanceCaseEntity> perTestList = performanceCaseService.queryList(query);
+        int total = performanceCaseService.queryTotal(query);
 
-        return R.ok().put("page", page);
+        PageUtils pageUtil = new PageUtils(perTestList, total, query.getLimit(), query.getPage());
+
+        return R.ok().put("page", pageUtil);
     }
 
 
     /**
-     * 信息
+     * 性能测试用例信息
      */
     @RequestMapping("/info/{caseId}")
     @RequiresPermissions("performance:performancecase:info")
     public R info(@PathVariable("caseId") Long caseId){
-		PerformanceCaseEntity performanceCase = performanceCaseService.getById(caseId);
+		PerformanceCaseEntity performanceCase = performanceCaseService.queryObject(caseId);
 
         return R.ok().put("performanceCase", performanceCase);
     }

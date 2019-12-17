@@ -14,9 +14,9 @@ import java.util.Map;
  * @email sunlightcs@gmail.com
  * @date 2019-12-05 15:27:50
  */
-public interface PerformanceCaseService extends IService<PerformanceCaseEntity> {
+public interface PerformanceCaseService  {
 
-    PageUtils queryPage(Map<String, Object> params);
+    //PageUtils queryPage(Map<String, Object> params);
 
     /**
      * 根据ID，查询性能测试用例
@@ -33,13 +33,17 @@ public interface PerformanceCaseService extends IService<PerformanceCaseEntity> 
      */
     int queryTotal(Map<String, Object> map);
 
+    /**
+     * 保存性能测试用例
+     */
+    void save(PerformanceCaseEntity perTestCase);
 
     /**
      * 更新性能测试用例
      */
-    static void update(PerformanceCaseEntity perTestCase) {
-        update(perTestCase);
-    }
+
+
+    void update(PerformanceCaseEntity perTestCase);
 
     /**
      * 批量删除

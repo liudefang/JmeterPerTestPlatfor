@@ -2,6 +2,7 @@ package io.renren.modules.performance.dao;
 
 import io.renren.modules.performance.entity.PerformanceCaseFileEntity;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import io.renren.modules.sys.dao.BaseDao;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
@@ -15,7 +16,7 @@ import java.util.Map;
  * @date 2019-12-05 15:27:50
  */
 @Mapper
-public interface PerformanceCaseFileDao extends BaseMapper<PerformanceCaseFileEntity> {
+public interface PerformanceCaseFileDao extends BaseDao<PerformanceCaseFileEntity> {
     int deleteBatchByCaseIds(Object[] id);
 
     List<PerformanceCaseFileEntity> queryListForDelete(Map<String, Object> map);
