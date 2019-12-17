@@ -51,7 +51,7 @@ public class PerformanceCaseEntity implements Serializable {
 	/**
 	 * 优先级用于过滤
 	 */
-	private String priority;
+	private Integer priority;
 	/**
 	 * master节点保存用例信息的文件夹
 	 */
@@ -64,7 +64,7 @@ public class PerformanceCaseEntity implements Serializable {
 	/**
 	 * 提交用户id
 	 */
-	private String addBy;
+	private Integer addBy;
 	/**
 	 * 修改时间
 	 */
@@ -72,7 +72,7 @@ public class PerformanceCaseEntity implements Serializable {
 	/**
 	 * 修改用户id
 	 */
-	private String updateBy;
+	private Integer updateBy;
 
 
 	public Long getCaseId() {
@@ -131,27 +131,27 @@ public class PerformanceCaseEntity implements Serializable {
 		this.status = status;
 	}
 
-	public String getPriority() {
+	public Integer getPriority() {
 		return priority;
 	}
 
-	public void setPriority(String priority) {
+	public void setPriority(Integer priority) {
 		this.priority = priority;
 	}
 
-	public String getAddBy() {
+	public Integer getAddBy() {
 		return addBy;
 	}
 
-	public void setAddBy(String addBy) {
+	public void setAddBy(Integer addBy) {
 		this.addBy = addBy;
 	}
 
-	public String getUpdateBy() {
+	public Integer getUpdateBy() {
 		return updateBy;
 	}
 
-	public void setUpdateBy(String updateBy) {
+	public void setUpdateBy(Integer updateBy) {
 		this.updateBy = updateBy;
 	}
 

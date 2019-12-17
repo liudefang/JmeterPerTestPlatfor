@@ -32,6 +32,15 @@ public interface PerformanceCaseService extends IService<PerformanceCaseEntity> 
      * 查询总数
      */
     int queryTotal(Map<String, Object> map);
+
+
+    /**
+     * 更新性能测试用例
+     */
+    static void update(PerformanceCaseEntity perTestCase) {
+        update(perTestCase);
+    }
+
     /**
      * 批量删除
      */

@@ -4,7 +4,7 @@
 <mapper namespace="io.renren.modules.performance.dao.PerformanceCaseDao">
 
 	<!-- 可根据自己的需求，是否要使用 -->
-    <resultMap type="io.renren.modules.performance.entity.PerformanceCaseEntity" id="performanceCaseMap">
+    <!--<resultMap type="io.renren.modules.performance.entity.PerformanceCaseEntity" id="performanceCaseMap">
         <result property="caseId" column="case_id"/>
         <result property="caseName" column="case_name"/>
         <result property="project" column="project"/>
@@ -18,7 +18,99 @@
         <result property="addBy" column="add_by"/>
         <result property="updateTime" column="update_time"/>
         <result property="updateBy" column="update_by"/>
-    </resultMap>
+    </resultMap>-->
+    <select id="queryObject" resultType="io.renren.modules.performance.entity.PerformanceCaseEntity">
+		select * from test_stress_case where case_id = #{value}
+	</select>
+
+    <select id="queryList" resultType="io.renren.modules.performance.entity.PerformanceCaseEntity">
+        select * from test_stress_case
+        <where>
+            <if test="caseName != null and caseName.trim() != ''">
+                case_name like concat('%', #{caseName}, '%')
+            </if>
+        </where>
+        <choose>
+            <when test="sidx != null and sidx.trim() != ''">
+                order by ${sidx} ${order}
+            </when>
+            <otherwise>
+                order by add_time desc
+            </otherwise>
+        </choose>
+        <if test="offset != null and limit != null ">
+            limit #{offset}, #{limit}
+        </if>
+    </select>
+
+    <select id="queryTotal" resultType="int">
+        select count(1) from test_stress_case
+        <where>
+            <if test="caseName != null and caseName.trim() != ''">
+                case_name like concat('%', #{caseName}, '%')
+            </if>
+        </where>
+    </select>
+
+    <insert id="save" parameterType="io.renren.modules.performance.entity.PerformanceCaseEntity" useGeneratedKeys="true"
+            keyProperty="caseId">
+		insert into test_stress_case
+		(
+			`case_name`,
+			`project`,
+			`module`,
+			`status`,
+			`operator`,
+			`remark`,
+			`priority`,
+			`case_dir`,
+			`add_by`
+		)
+		values
+		(
+			#{caseName},
+			#{project},
+			#{module},
+			#{status},
+			#{operator},
+			#{remark},
+			#{priority},
+			#{caseDir},
+			#{addBy}
+		)
+	</insert>
+
+    <update id="update" parameterType="io.renren.modules.performance.entity.PerformanceCaseEntity">
+        update test_stress_case
+        <set>
+            <if test="caseName != null">`case_name` = #{caseName},</if>
+            <if test="project != null">`project` = #{project},</if>
+            <if test="module != null">`module` = #{module},</if>
+            <if test="status != null">`status` = #{status},</if>
+            <if test="operator != null">`operator` = #{operator},</if>
+            <if test="remark != null">`remark` = #{remark},</if>
+            <if test="priority != null">`priority` = #{priority},</if>
+            <if test="caseDir != null">`case_dir` = #{caseDir},</if>
+            <if test="updateBy != null">`update_by` = #{updateBy},</if>
+        </set>
+        where case_id = #{caseId}
+    </update>
+
+    <!-- 批量更新状态 -->
+    <update id="updateBatch">
+        update test_stress_case set status = #{status} where case_id in
+        <foreach item="caseId" collection="list" open="(" separator="," close=")">
+            #{caseId}
+        </foreach>
+    </update>
+
+    <delete id="deleteBatch">
+        delete from test_stress_case where case_id in
+        <foreach item="caseId" collection="array" open="(" separator="," close=")">
+            #{caseId}
+        </foreach>
+    </delete>
+
 
 
 </mapper>

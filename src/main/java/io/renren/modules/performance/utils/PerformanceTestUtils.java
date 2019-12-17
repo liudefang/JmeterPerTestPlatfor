@@ -150,15 +150,15 @@ public class PerformanceTestUtils {
         return Integer.parseInt(sysConfigService.getValue(MASTER_JMETER_REPLACE_FILE_KEY));
     }
 
-    public boolean isMasterGenerateReport() {
+    public static boolean isMasterGenerateReport() {
         return Boolean.parseBoolean(sysConfigService.getValue(MASTER_JMETER_GENERATE_REPORT_KEY));
     }
 
-    public boolean isGetThreadGroup() {
+    public static boolean isGetThreadGroup() {
         return Boolean.parseBoolean(sysConfigService.getValue(JMETER_THREADGROUP_SET_KEY));
     }
 
-    public boolean isScriptSchedulerDurationEffect() {
+    public static boolean isScriptSchedulerDurationEffect() {
         return Boolean.parseBoolean(sysConfigService.getValue(SCRIPT_SCHEDULER_DURATION_KEY));
     }
 
@@ -170,14 +170,14 @@ public class PerformanceTestUtils {
     /**
      * 获取Jmeter的bin目录
      */
-    public String getJmeterHomeBin() {
+    public static String getJmeterHomeBin() {
         return getJmeterHome() + File.separator + "bin";
     }
 
     /**
      * 根据操作系统信息获取可以执行的jmeter主程序
      */
-    public String getJmeterExc() {
+    public static String getJmeterExc() {
         String jmeterExc = "jmeter";
         if (OS_NAME_LC.startsWith("windows")) {
             jmeterExc = "jmeter.bat";
@@ -188,7 +188,7 @@ public class PerformanceTestUtils {
     /**
      * 根据操作系统信息获取可以停止的jmeter主程序
      */
-    public String getJmeterStopExc() {
+    public static String getJmeterStopExc() {
         String jmeterExc = "shutdown.sh";
         if (OS_NAME_LC.startsWith("windows")) {
             jmeterExc = "shutdown.cmd";
@@ -225,14 +225,14 @@ public class PerformanceTestUtils {
     /**
      * 获取上传文件的md5
      */
-    public String getMd5(MultipartFile file) throws IOException {
+    public static String getMd5(MultipartFile file) throws IOException {
         return DigestUtils.md5Hex(file.getBytes());
     }
 
     /**
      * 获取文件的MD5值，远程节点机也是通过MD5值来判断文件是否重复及存在，所以就不使用其他算法了。
      */
-    public String getMd5ByFile(String filePath) throws IOException {
+    public static String getMd5ByFile(String filePath) throws IOException {
         FileInputStream fis = new FileInputStream(filePath);
         return DigestUtils.md5Hex(IOUtils.toByteArray(fis));
     }
@@ -240,7 +240,7 @@ public class PerformanceTestUtils {
     /**
      * 保存文件
      */
-    public void saveFile(MultipartFile multipartFile, String filePath) {
+    public static void saveFile(MultipartFile multipartFile, String filePath) {
         try {
             File file = new File(filePath);
             FileUtils.forceMkdirParent(file);

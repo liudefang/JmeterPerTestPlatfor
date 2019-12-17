@@ -63,7 +63,7 @@ public interface PerformanceCaseFileService extends IService<PerformanceCaseFile
     /**
      * 更新性能测试用例信息
      */
-    //void update(MultipartFile file, String filePath, StressTestEntity stressCase, StressTestFileEntity stressCaseFile);
+    void update(MultipartFile file, String filePath, PerformanceCaseEntity perTestCase, PerformanceCaseFileEntity perTestCaseFile);
 
     /**
      * 批量更新性能测试用例状态

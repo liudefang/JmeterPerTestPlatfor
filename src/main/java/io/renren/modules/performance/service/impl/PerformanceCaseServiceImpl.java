@@ -52,6 +52,12 @@ public class PerformanceCaseServiceImpl extends ServiceImpl<PerformanceCaseDao, 
     }
 
     @Override
+    public void update(PerformanceCaseEntity perTestCase) {
+        update(perTestCase);
+
+    }
+
+    @Override
     @Transactional
     public void deleteBatch(Long[] caseIds){
         for (Long caseId : caseIds){
@@ -67,6 +73,11 @@ public class PerformanceCaseServiceImpl extends ServiceImpl<PerformanceCaseDao, 
                 throw new RRException("删除文件异常失败", e);
             }
         }
+    }
+
+    @Override
+    public int updateBatch(Long[] caseIds, int status) {
+        return 0;
     }
 
 
