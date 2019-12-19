@@ -132,7 +132,7 @@ public class PerformanceCaseController {
      */
     @PostMapping("/upload")
     @RequiresPermissions("performance:performancecase:upload")
-    public R upload(@RequestParam("file") MultipartFile multipartFile, MultipartHttpServletRequest request) {
+    public R upload(@RequestParam("file") MultipartFile multipartFile, @RequestParam("caseId") Integer caseId) {
         if (multipartFile.isEmpty()) {
             throw new RRException("上传文件不能为空");
         }
@@ -145,7 +145,8 @@ public class PerformanceCaseController {
             return R.ok().put("error", "非脚本文件名不能包含汉字");
         }
 
-        String caseId = request.getParameter("caseIds");
+        //String caseId = caseId;
+        System.out.println("用例的id信息:" + caseId);
         // 允许文件名不同但是文件内容相同，因为不同的文件名对应不同的用例
         PerformanceCaseEntity performanceCase = performanceCaseService.queryObject(Long.valueOf(caseId));
         // 主节点master的用于保存JMeter用例以及文件的地址
