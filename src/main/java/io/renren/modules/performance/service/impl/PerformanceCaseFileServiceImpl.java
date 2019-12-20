@@ -1,9 +1,10 @@
 package io.renren.modules.performance.service.impl;
 
 import io.renren.common.exception.RRException;
-import io.renren.modules.performance.dao.PerformanceCaseDao;
-import io.renren.modules.performance.dao.PerformanceThreadSetDao;
+import io.renren.modules.performance.dao.*;
+import io.renren.modules.performance.entity.DebugCaseReportsEntity;
 import io.renren.modules.performance.entity.PerformanceCaseEntity;
+import io.renren.modules.performance.entity.PerformanceCaseReportsEntity;
 import io.renren.modules.performance.service.PerformanceCaseService;
 import io.renren.modules.performance.service.PerformanceThreadSetService;
 import io.renren.modules.performance.utils.PerformanceTestUtils;
@@ -26,7 +27,6 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import io.renren.common.utils.PageUtils;
 import io.renren.common.utils.Query;
 
-import io.renren.modules.performance.dao.PerformanceCaseFileDao;
 import io.renren.modules.performance.entity.PerformanceCaseFileEntity;
 import io.renren.modules.performance.service.PerformanceCaseFileService;
 import org.springframework.transaction.annotation.Transactional;
@@ -86,6 +86,12 @@ public class PerformanceCaseFileServiceImpl implements PerformanceCaseFileServic
     @Autowired
     private PerformanceThreadSetService performanceThreadSet;
 
+    @Autowired
+    private DebugCaseReportsDao debugCaseReportsDao;
+
+    @Autowired
+    private PerformanceCaseReportsDao perTestCaseRortsDao;
+
 
     @Override
     public PerformanceCaseFileEntity queryObject(Long fileId) {
@@ -109,6 +115,11 @@ public class PerformanceCaseFileServiceImpl implements PerformanceCaseFileServic
         return performanceCaseFileDao.queryTotal(map);
     }
 
+    @Override
+    public void save(PerformanceCaseFileEntity perTestCaseFile) {
+        performanceCaseFileDao.save(perTestCaseFile);
+    }
+
 
     /**
      * 保存文件以及入库
@@ -116,33 +127,33 @@ public class PerformanceCaseFileServiceImpl implements PerformanceCaseFileServic
 
     @Override
     @Transactional
-    public void save(MultipartFile file, String filePath, PerformanceCaseEntity stressCase, PerformanceCaseFileEntity stressCaseFile) {
+    public void save(MultipartFile file, String filePath, PerformanceCaseEntity perTestCase, PerformanceCaseFileEntity perTestCaseFile) {
         // 保存文件放这里,是因为有事务.
         // 保存数据放在最前,因为当前文件重名校验是根据数据库异常得到
         try {
             String fileMd5 = DigestUtils.md5Hex(file.getBytes());
-            stressCaseFile.setFileMd5(fileMd5);
+            perTestCaseFile.setFileMd5(fileMd5);
         } catch (IOException e){
             throw new RRException("获取上传文件的MD5失败", e);
         }
-        if(stressCaseFile.getFileId() != null && stressCaseFile.getFileId() > 0L) {
+        if(perTestCaseFile.getFileId() != null && perTestCaseFile.getFileId() > 0L) {
             // 替换文件，同时修改添加时间，便于前端显示。
-            stressCaseFile.setAddTime(new Date());
-            update(stressCaseFile);
+            perTestCaseFile.setAddTime(new Date());
+            update(perTestCaseFile);
         } else {
             // 保存文件，同时解决第一次保存文件时实体没有写入用例名称
-            stressCaseFile.setCaseName(stressCase.getCaseName());
-            performanceCaseFileDao.save(stressCaseFile);
+            perTestCaseFile.setCaseName(perTestCase.getCaseName());
+            save(perTestCaseFile);
         }
         // 肯定存在已有的用例信息
-        performanceCaseDao.update(stressCase);
+        performanceCaseDao.update(perTestCase);
         performanceTestUtils.saveFile(file, filePath);
         // 对jmx脚本将线程组配置信息入库(默认不入库)
         if(performanceTestUtils.isGetThreadGroup() && filePath.substring(filePath.length()-3).equals("jmx")){
             try {
                 // 入库前清理已有配置项
-                performanceThreadSetDao.deleteByFileId(stressCaseFile.getFileId());
-                performanceThreadSet.jmxSaveNodes(filePath, stressCaseFile);
+                performanceThreadSetDao.deleteByFileId(perTestCaseFile.getFileId());
+                performanceThreadSet.jmxSaveNodes(filePath, perTestCaseFile);
             } catch (DocumentException e){
                 e.printStackTrace();
             }
@@ -153,6 +164,21 @@ public class PerformanceCaseFileServiceImpl implements PerformanceCaseFileServic
     @Override
     public void update(PerformanceCaseFileEntity perTestFile) {
         performanceCaseFileDao.update(perTestFile);
+
+    }
+
+    @Override
+    @Transactional
+    public void update(PerformanceCaseFileEntity stressTestFile, PerformanceCaseReportsEntity perTestReports) {
+        update(stressTestFile);
+        if(perTestReports != null){
+            if (perTestReports instanceof DebugCaseReportsEntity){
+                debugCaseReportsDao.update((DebugCaseReportsEntity) perTestReports);
+            } else {
+                perTestCaseRortsDao.update(perTestReports);
+
+            }
+        }
 
     }
 
@@ -192,6 +218,11 @@ public class PerformanceCaseFileServiceImpl implements PerformanceCaseFileServic
 
     @Override
     public void stop(Long[] fileIds) {
+
+    }
+
+    @Override
+    public void stopAll(Long[] fileIds) {
 
     }
 

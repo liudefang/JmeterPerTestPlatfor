@@ -2,10 +2,10 @@ package io.renren.modules.performance.entity;
 
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import lombok.Data;
 
 import java.io.Serializable;
 import java.util.Date;
-import lombok.Data;
 
 /**
  * 性能测试用例文件表
@@ -46,11 +46,11 @@ public class PerformanceCaseFileEntity implements Serializable {
 	 */
 	private Long slaveId;
 	/**
-	 * 上传的文件名带后缀
+	 * 上传的文件名
 	 */
 	private String originName;
 	/**
-	 * 防止汉字编码错误实际保存的文件名带后缀
+	 * 用例保存文件名，唯一化
 	 */
 	private String fileName;
 	/**

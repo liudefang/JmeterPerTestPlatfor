@@ -1,16 +1,16 @@
 package io.renren.modules.performance.service;
 
-import com.baomidou.mybatisplus.extension.service.IService;
-import io.renren.common.utils.PageUtils;
 import io.renren.modules.performance.entity.PerformanceCaseEntity;
 import io.renren.modules.performance.entity.PerformanceCaseFileEntity;
+import io.renren.modules.performance.entity.PerformanceCaseReportsEntity;
+import io.renren.modules.performance.jmeter.JmeterRunEntity;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Map;
 
 /**
- * 性能测试用例文件表
+ * 性能测试用例文件
  *
  * @author mike.liu
  * @email sunlightcs@gmail.com
@@ -42,7 +42,7 @@ public interface PerformanceCaseFileService {
     /**
      * 保存性能测试用例文件
      */
-   // void save(PerformanceCaseFileEntity stressCaseFile);
+    void save(PerformanceCaseFileEntity stressCaseFile);
 
     /**
      * 保存性能测试用例文件
@@ -57,7 +57,7 @@ public interface PerformanceCaseFileService {
     /**
      * 更新性能测试用例信息
      */
-   // void update(PerformanceCaseFileEntity stressTestFile, StressTestReportsEntity stressTestReports);
+    void update(PerformanceCaseFileEntity stressTestFile, PerformanceCaseReportsEntity perTestReports);
 
     /**
      * 更新性能测试用例信息
@@ -87,7 +87,7 @@ public interface PerformanceCaseFileService {
     /**
      * 停止运行
      */
-    void stopAll();
+    void stopAll(Long[] fileIds);
 
     /**
      * 立即停止运行
@@ -112,7 +112,7 @@ public interface PerformanceCaseFileService {
     /**
      * 相同进程内执行的脚本，可以使用这个方法停止
      */
-   // void stopLocal(Long fileId, JmeterRunEntity jmeterRunEntity);
+    void stopLocal(Long fileId, JmeterRunEntity jmeterRunEntity);
 
     /**
      * 启动单个脚本

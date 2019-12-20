@@ -2,10 +2,12 @@ package io.renren.modules.performance.utils;
 
 import io.renren.common.exception.RRException;
 import io.renren.common.utils.SpringContextUtils;
+import io.renren.modules.performance.jmeter.JmeterRunEntity;
 import io.renren.modules.sys.service.SysConfigService;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.jmeter.util.JMeterUtils;
 import org.apache.jmeter.visualizers.SamplingStatCalculator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,7 +75,7 @@ public class PerformanceTestUtils {
      * 如果不使用分布式节点，则Engines仅包含master主节点。
      * 默认是使用分布式的，则Engines会包含所有有效的分布式节点的Engine。
      */
-   // public static Map<Long, JmeterRunEntity> jMeterEntity4file = new HashMap<>();
+    public static Map<Long, JmeterRunEntity> jMeterEntity4file = new HashMap<>();
 
     /**
      * 主进程Master内保存的一些状态，主要用于分布式的压测操作服务。
@@ -252,55 +254,55 @@ public class PerformanceTestUtils {
 
     /**
      * 判断当前是否存在正在执行的脚本
-//     */
-//    public static boolean checkExistRunningScript(){
-//        for (JmeterRunEntity jmeterRunEntity : jMeterEntity4file.values()) {
-//            if (jmeterRunEntity.getRunStatus().equals(RUNNING)) {
-//                return true;
-//            }
-//        }
-//        return false;
-//    }
+     */
+    public static boolean checkExistRunningScript(){
+        for (JmeterRunEntity jmeterRunEntity : jMeterEntity4file.values()) {
+            if (jmeterRunEntity.getRunStatus().equals(RUNNING)) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     /**
      * 设置Jmeter运行环境相关的配置，如配置文件的加载，当地语言环境等。
      */
-//    public void setJmeterProperties() {
-//        String jmeterHomeBin = getJmeterHomeBin();
-//        JMeterUtils.loadJMeterProperties(jmeterHomeBin + File.separator + "jmeter.properties");
-//        JMeterUtils.setJMeterHome(getJmeterHome());
-//        JMeterUtils.initLocale();
-//
-//        Properties jmeterProps = JMeterUtils.getJMeterProperties();
-//
-//        // Add local JMeter properties, if the file is found
-//        String userProp = JMeterUtils.getPropDefault("user.properties", ""); //$NON-NLS-1$
-//        if (userProp.length() > 0) { //$NON-NLS-1$
-//            File file = JMeterUtils.findFile(userProp);
-//            if (file.canRead()) {
-//                try (FileInputStream fis = new FileInputStream(file)) {
-//                    Properties tmp = new Properties();
-//                    tmp.load(fis);
-//                    jmeterProps.putAll(tmp);
-//                } catch (IOException e) {
-//                }
-//            }
-//        }
-//
-//        // Add local system properties, if the file is found
-//        String sysProp = JMeterUtils.getPropDefault("system.properties", ""); //$NON-NLS-1$
-//        if (sysProp.length() > 0) {
-//            File file = JMeterUtils.findFile(sysProp);
-//            if (file.canRead()) {
-//                try (FileInputStream fis = new FileInputStream(file)) {
-//                    System.getProperties().load(fis);
-//                } catch (IOException e) {
-//                }
-//            }
-//        }
-//
-//        jmeterProps.put("jmeter.version", JMeterUtils.getJMeterVersion());
-//    }
+    public void setJmeterProperties() {
+        String jmeterHomeBin = getJmeterHomeBin();
+        JMeterUtils.loadJMeterProperties(jmeterHomeBin + File.separator + "jmeter.properties");
+        JMeterUtils.setJMeterHome(getJmeterHome());
+        JMeterUtils.initLocale();
+
+        Properties jmeterProps = JMeterUtils.getJMeterProperties();
+
+        // Add local JMeter properties, if the file is found
+        String userProp = JMeterUtils.getPropDefault("user.properties", ""); //$NON-NLS-1$
+        if (userProp.length() > 0) { //$NON-NLS-1$
+            File file = JMeterUtils.findFile(userProp);
+            if (file.canRead()) {
+                try (FileInputStream fis = new FileInputStream(file)) {
+                    Properties tmp = new Properties();
+                    tmp.load(fis);
+                    jmeterProps.putAll(tmp);
+                } catch (IOException e) {
+                }
+            }
+        }
+
+        // Add local system properties, if the file is found
+        String sysProp = JMeterUtils.getPropDefault("system.properties", ""); //$NON-NLS-1$
+        if (sysProp.length() > 0) {
+            File file = JMeterUtils.findFile(sysProp);
+            if (file.canRead()) {
+                try (FileInputStream fis = new FileInputStream(file)) {
+                    System.getProperties().load(fis);
+                } catch (IOException e) {
+                }
+            }
+        }
+
+        jmeterProps.put("jmeter.version", JMeterUtils.getJMeterVersion());
+    }
 
     /**
      * 为调试模式动态设置Jmeter的结果文件格式，让jtl包含必要的调试信息。

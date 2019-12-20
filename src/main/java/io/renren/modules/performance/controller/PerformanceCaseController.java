@@ -79,7 +79,7 @@ public class PerformanceCaseController {
         // 生成用例时即生成用例的文件夹名，上传附件时才会将此名称落地成为文件夹。
         if (StringUtils.isEmpty(performanceCase.getCaseDir())) {
             Date caseAddTime = new Date();
-            String caseAddTimeStr = DateUtils.format(caseAddTime, DateUtils.DATE_TIME_PATTERN);
+            String caseAddTimeStr = DateUtils.format(caseAddTime, DateUtils.DATE_TIME_PATTERN_4DIR);
             //random使用时间种子的随机数,避免了轻度并发造成文件夹重名.
             String caseFilePath = caseAddTimeStr + new Random(System.nanoTime()).nextInt(1000);
             performanceCase.setCaseDir(caseFilePath);
@@ -132,7 +132,7 @@ public class PerformanceCaseController {
      */
     @PostMapping("/upload")
     @RequiresPermissions("performance:performancecase:upload")
-    public R upload(@RequestParam("file") MultipartFile multipartFile, @RequestParam("caseId") Integer caseId) {
+    public R upload(@RequestParam("file") MultipartFile multipartFile, MultipartHttpServletRequest request) {
         if (multipartFile.isEmpty()) {
             throw new RRException("上传文件不能为空");
         }
@@ -145,7 +145,7 @@ public class PerformanceCaseController {
             return R.ok().put("error", "非脚本文件名不能包含汉字");
         }
 
-        //String caseId = caseId;
+        String caseId = request.getParameter("caseId");
         System.out.println("用例的id信息:" + caseId);
         // 允许文件名不同但是文件内容相同，因为不同的文件名对应不同的用例
         PerformanceCaseEntity performanceCase = performanceCaseService.queryObject(Long.valueOf(caseId));
@@ -189,7 +189,7 @@ public class PerformanceCaseController {
             //从节点slave会默认使用$JMETER_HOME/bin/stressTest 来存储参数化文件
             //master的文件分开放(web页面操作无感知),slave的参数化文件统一放.
             Date caseAddTime = performanceCase.getAddTime();
-            String caseAddTimeStr = DateUtils.format(caseAddTime, DateUtils.DATE_TIME_PATTERN);
+            String caseAddTimeStr = DateUtils.format(caseAddTime, DateUtils.DATE_TIME_PATTERN_4DIR);
             String caseFilePath;
             if (StringUtils.isEmpty(performanceCase.getCaseDir())) {
                 //random使用时间种子的随机数,避免了轻度并发造成文件夹重名.
