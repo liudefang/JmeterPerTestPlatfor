@@ -1,9 +1,9 @@
 package io.renren.modules.performance.service.impl;
 
-import com.sun.org.apache.xalan.internal.utils.ConfigurationError;
 import io.renren.common.exception.RRException;
 import io.renren.modules.performance.dao.PerformanceCaseReportsDao;
 import io.renren.modules.performance.entity.PerformanceCaseReportsEntity;
+import io.renren.modules.performance.handler.ReportCreateResultHandler;
 import io.renren.modules.performance.jmeter.report.LocalReportGenerator;
 import io.renren.modules.performance.service.PerformanceCaseReportsService;
 import io.renren.modules.performance.utils.PerformanceTestUtils;
@@ -16,10 +16,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.apache.commons.exec.CommandLine;
+import org.apache.commons.exec.DefaultExecutor;
+import org.apache.commons.exec.PumpStreamHandler;
 
 import java.io.*;
 import java.nio.charset.Charset;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.zip.ZipEntry;
@@ -165,6 +169,138 @@ public class PerformanceCaseReportsServiceImpl implements PerformanceCaseReports
             throw new RRException("执行生成测试报告脚本异常", e);
         }
     }
+
+    /**
+     * 使用Jmeter_home中的命令生成测试报告
+     *
+     */
+    public void generateReportByScript(PerformanceCaseReportsEntity perTestReport, String csvPath, String reportPathDir){
+        // 开始执行命令行
+        String jmeterHomeBin = performanceTestUtils.getJmeterHomeBin();
+        String jmeterExc = performanceTestUtils.getJmeterExc();
+
+        CommandLine cmdLine = new CommandLine(jmeterHomeBin + File.separator + jmeterExc);
+        // 设置参数， -g 指定测试结果文件路径，仅用于生成测试报告
+        cmdLine.addArgument("-g");
+        Map map = new HashMap();
+        map.put("csvFile", new File(csvPath));
+        File reportDir = new File(reportPathDir);
+        map.put("reportDir", reportDir);
+        cmdLine.addArgument("${csvFile}");
+        // -o 指定测试报告生成文件夹必须为空或者不存在，这里必须为不存在
+        cmdLine.addArgument("-o");
+        cmdLine.addArgument("${reportDir}");
+        // 指定需要执行的Jmx脚本
+        cmdLine.setSubstitutionMap(map);
+
+        DefaultExecutor executor = new DefaultExecutor();
+        // 非阻塞式运行脚本命令，不耽误前端操作
+        // 流操作在executor执行源码中已经关闭
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        ByteArrayOutputStream errorStream = new ByteArrayOutputStream();
+        PumpStreamHandler streamHandler = new PumpStreamHandler(outputStream, errorStream);
+        // 设置成功输入以及错误输出，用于追查问题，打印日志
+        executor.setStreamHandler(streamHandler);
+
+        try {
+            // 自定义的钩子程序
+            ReportCreateResultHandler resultHandler = new ReportCreateResultHandler(perTestReport,
+                    this, outputStream, errorStream);
+
+            // 执行脚本命令
+            executor.execute(cmdLine, resultHandler);
+        } catch (IOException e){
+            // 保存状态，执行出现异常
+            perTestReport.setStatus(performanceTestUtils.RUN_ERROR);
+            update(perTestReport);
+            throw new RRException("执行生成测试报告脚本异常!", e);
+        }
+    }
+
+    /**
+     * 测试报告文件如果最后一行不完整，会报生成报告的错误。
+     * 所以每次生成报告之前，如果不完整则删除最后一行记录，让测试报告生成没有这类文件不完整的错误。
+     *
+     * @param fileName csv 文件
+     */
+    public void fixReportFile(String fileName){
+        // 需要增加判断，如果是不完整的最后一行，属于脏数据，则删除这条数据
+        // 如果是完整的，则直接跳出不执行删除操作
+        try {
+            RandomAccessFile raf = new RandomAccessFile(fileName, "rw");
+            if (raf.length() == 0L){
+                logger.error("测试报告原始csv文件为空，可以删除!");
+                throw new RRException("测试报告原始文件找不到，请删除!");
+            }
+            // 获取倒数第一行的数据
+            long pos = raf.length() - 1;
+            pos = getPos(raf, pos);
+            String lastLine = getLineStr(raf, raf.length(), pos);
+
+            // 获取倒数第二行的数据
+            long posSec = pos - 1;
+            posSec = getPos(raf, posSec);
+            String lastSecLine = getLineStr(raf, pos, posSec);
+
+            // 是否删除最后一行，可以通过最后一行的数据结构是否和倒数第二行相同 判断
+            // csv文件都是英文逗号，做分隔
+            String[] theLast = lastLine.split(",");
+            String[] theLastSec = lastSecLine.split(",");
+            if(theLast.length != theLastSec.length){
+                // 这会删除最后一行
+                if(pos <= 0) {
+                    raf.setLength(pos);
+                } else {
+                    raf.setLength(pos + 1);
+                }
+            }
+            // 关闭回收
+            raf.close();
+
+
+        } catch (FileNotFoundException e){
+            logger.error("测试报告原始csv文件找不到", e);
+            throw new RRException("测试报告原始文件找不到", e);
+        } catch (IOException e){
+            logger.error("测试报告原始文件修复时，IO错误!", e);
+            throw new RRException("测试报告原始文件修复时出错!");
+        }
+    }
+    /**
+     * 获取文件中的某一段数据，这里是以\n做分割的。
+     * 本身文件是从后向前做循环，所以多次调用并不会增加过多的性能时间损耗。
+     * 默认是UTF-8的编码
+     *
+     * @param raf  原始文件
+     * @param posEnd 要截取数据行的在文件中结束的位置
+     * @param posStart  要截取数据行的开始的位置
+     * @return  返回一行数据
+     * @throws IOException
+     */
+    public String getLineStr(RandomAccessFile raf, long posEnd, long posStart) throws IOException {
+        byte[] bytes = new byte[(int) (posEnd - posStart)];
+        raf.read(bytes);
+        return new String(bytes, Charset.forName("UTF-8"));
+    }
+
+    /**
+     * 获取要截取数据行的开始的位置
+     * 是从文本的最后开始向前找，找到换行符\n之后即停止，返回位置。
+     * 该位置其他调用方法会遇到，会作为起点。
+     *
+     * 同时由于是从文本的最后向前寻找，所以csv文本是脏数据，最后一行不包含\n，也会找到最后一行。
+     */
+    public long getPos(RandomAccessFile raf, long posStart) throws IOException {
+        while (posStart > 0){
+            posStart--;
+            raf.seek(posStart);
+            if (raf.readByte() == '\n') {
+                break;
+            }
+        }
+        return posStart;
+    }
+
 
     @Override
     public void deleteReportCSV(PerformanceCaseReportsEntity perTestReports) {

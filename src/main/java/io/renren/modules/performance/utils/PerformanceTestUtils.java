@@ -160,7 +160,7 @@ public class PerformanceTestUtils {
         return Boolean.parseBoolean(sysConfigService.getValue(JMETER_THREADGROUP_SET_KEY));
     }
 
-    public static boolean isScriptSchedulerDurationEffect() {
+    public boolean isScriptSchedulerDurationEffect() {
         return Boolean.parseBoolean(sysConfigService.getValue(SCRIPT_SCHEDULER_DURATION_KEY));
     }
 
@@ -172,14 +172,14 @@ public class PerformanceTestUtils {
     /**
      * 获取Jmeter的bin目录
      */
-    public static String getJmeterHomeBin() {
+    public String getJmeterHomeBin() {
         return getJmeterHome() + File.separator + "bin";
     }
 
     /**
      * 根据操作系统信息获取可以执行的jmeter主程序
      */
-    public static String getJmeterExc() {
+    public String getJmeterExc() {
         String jmeterExc = "jmeter";
         if (OS_NAME_LC.startsWith("windows")) {
             jmeterExc = "jmeter.bat";
@@ -309,7 +309,7 @@ public class PerformanceTestUtils {
      * 这些信息会显著影响压力机性能，所以仅供调试使用。
      * 同时这些配置仅对当前进程即master节点生效。
      */
-    /*public void setJmeterOutputFormat() {
+    public void setJmeterOutputFormat() {
         Properties jmeterProps = JMeterUtils.getJMeterProperties();
         jmeterProps.put("jmeter.save.saveservice.label", "true");
         jmeterProps.put("jmeter.save.saveservice.response_data", "true");
@@ -333,7 +333,7 @@ public class PerformanceTestUtils {
         jmeterProps.put("jmeter.save.saveservice.thread_counts", "true");
         jmeterProps.put("jmeter.save.saveservice.sample_count", "true");
         jmeterProps.put("jmeter.save.saveservice.idle_time", "true");
-    }*/
+    }
 
     /**
      * 为测试报告和调试报告提供的删除jmx的生成目录方法。

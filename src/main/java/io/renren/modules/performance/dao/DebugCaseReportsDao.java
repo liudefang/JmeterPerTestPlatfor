@@ -1,7 +1,7 @@
 package io.renren.modules.performance.dao;
 
 import io.renren.modules.performance.entity.DebugCaseReportsEntity;
-import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import io.renren.modules.sys.dao.BaseDao;
 import org.apache.ibatis.annotations.Mapper;
 
 /**
@@ -12,6 +12,6 @@ import org.apache.ibatis.annotations.Mapper;
  * @date 2019-12-05 15:27:50
  */
 @Mapper
-public interface DebugCaseReportsDao extends BaseMapper<DebugCaseReportsEntity> {
+public interface DebugCaseReportsDao extends BaseDao<DebugCaseReportsEntity> {
 	
 }
