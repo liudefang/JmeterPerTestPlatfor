@@ -1,8 +1,10 @@
 package io.renren.modules.performance.dao;
 
 import io.renren.modules.performance.entity.PerformanceSlaveEntity;
-import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import io.renren.modules.sys.dao.BaseDao;
 import org.apache.ibatis.annotations.Mapper;
+
+import java.util.Map;
 
 /**
  * 性能测试分布式节点表
@@ -12,6 +14,10 @@ import org.apache.ibatis.annotations.Mapper;
  * @date 2019-12-05 15:27:50
  */
 @Mapper
-public interface PerformanceSlaveDao extends BaseMapper<PerformanceSlaveEntity> {
-	
+public interface PerformanceSlaveDao extends BaseDao<PerformanceSlaveEntity> {
+
+    /**
+     * 批量更新
+     */
+    int updateBatch(Map<String, Object> map);
 }

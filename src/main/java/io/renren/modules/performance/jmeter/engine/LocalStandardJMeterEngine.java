@@ -167,7 +167,7 @@ public class LocalStandardJMeterEngine extends StandardJMeterEngine {
         }
         JmeterTestPlan tp = (JmeterTestPlan) plan[0];
         // 设置我们平台自己的变量
-        tp.setStressTestFile(perTestFile);
+        tp.setperTestFile(perTestFile);
 
         serialized = tp.isSerialized();
         tearDownOnShutdown = tp.isTearDownOnShutdown();

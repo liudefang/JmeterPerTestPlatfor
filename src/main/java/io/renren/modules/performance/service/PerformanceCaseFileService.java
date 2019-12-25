@@ -4,6 +4,7 @@ import io.renren.modules.performance.entity.PerformanceCaseEntity;
 import io.renren.modules.performance.entity.PerformanceCaseFileEntity;
 import io.renren.modules.performance.entity.PerformanceCaseReportsEntity;
 import io.renren.modules.performance.jmeter.JmeterRunEntity;
+import io.renren.modules.performance.jmeter.JmeterStatEntity;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -97,7 +98,7 @@ public interface PerformanceCaseFileService {
     /**
      * 获取轮询监控结果
      */
-    //JmeterStatEntity getJmeterStatEntity(Long fileId);
+    JmeterStatEntity getJmeterStatEntity(Long fileId);
 
     /**
      * 同步参数化文件到节点机

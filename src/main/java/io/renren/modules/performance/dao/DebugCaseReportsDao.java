@@ -13,5 +13,5 @@ import org.apache.ibatis.annotations.Mapper;
  */
 @Mapper
 public interface DebugCaseReportsDao extends BaseDao<DebugCaseReportsEntity> {
-	
+    int deleteBatchByCaseIds(Object[] id);
 }

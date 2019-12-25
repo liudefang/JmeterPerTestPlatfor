@@ -190,7 +190,7 @@ public class PerformanceTestUtils {
     /**
      * 根据操作系统信息获取可以停止的jmeter主程序
      */
-    public static String getJmeterStopExc() {
+    public String getJmeterStopExc() {
         String jmeterExc = "shutdown.sh";
         if (OS_NAME_LC.startsWith("windows")) {
             jmeterExc = "shutdown.cmd";
@@ -227,14 +227,14 @@ public class PerformanceTestUtils {
     /**
      * 获取上传文件的md5
      */
-    public static String getMd5(MultipartFile file) throws IOException {
+    public String getMd5(MultipartFile file) throws IOException {
         return DigestUtils.md5Hex(file.getBytes());
     }
 
     /**
      * 获取文件的MD5值，远程节点机也是通过MD5值来判断文件是否重复及存在，所以就不使用其他算法了。
      */
-    public static String getMd5ByFile(String filePath) throws IOException {
+    public String getMd5ByFile(String filePath) throws IOException {
         FileInputStream fis = new FileInputStream(filePath);
         return DigestUtils.md5Hex(IOUtils.toByteArray(fis));
     }

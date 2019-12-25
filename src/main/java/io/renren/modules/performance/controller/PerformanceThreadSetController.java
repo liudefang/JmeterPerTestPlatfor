@@ -1,21 +1,21 @@
 package io.renren.modules.performance.controller;
 
-import java.util.Arrays;
-import java.util.Map;
-
+import io.renren.common.annotation.SysLog;
+import io.renren.common.utils.R;
+import io.renren.modules.performance.entity.PerformanceThreadSetEntity;
+import io.renren.modules.performance.service.PerformanceThreadSetService;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.dom4j.DocumentException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import io.renren.modules.performance.entity.PerformanceThreadSetEntity;
-import io.renren.modules.performance.service.PerformanceThreadSetService;
-import io.renren.common.utils.PageUtils;
-import io.renren.common.utils.R;
-
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -32,16 +32,49 @@ public class PerformanceThreadSetController {
     private PerformanceThreadSetService performanceThreadSetService;
 
     /**
-     * 列表
+     * 所有配置列表
      */
     @RequestMapping("/list")
     @RequiresPermissions("performance:performancethreadset:list")
-    public R list(@RequestParam Map<String, Object> params){
-        PageUtils page = performanceThreadSetService.queryPage(params);
+    public List<PerformanceThreadSetEntity> list(){
 
-        return R.ok().put("page", page);
+        List<PerformanceThreadSetEntity> perTestThreadSetList = performanceThreadSetService.queryList(new HashMap<String, Object>());
+
+        return perTestThreadSetList;
     }
 
+    /**
+     * 指定脚本的配置列表
+     */
+    @RequestMapping("/list/{fileIds}")
+    @RequiresPermissions("performance:performancethreadset:fileList")
+    public List<PerformanceThreadSetEntity> list(@PathVariable("fileIds") String[] fileIds){
+        Map<String,Object> map = new HashMap<String, Object>();
+        map.put("fileids", Arrays.asList(fileIds));
+        List<PerformanceThreadSetEntity> testStressThreadSetList = performanceThreadSetService.queryList(map);
+
+        return testStressThreadSetList;
+    }
+
+    /**
+     * 选择配置项(添加、修改配置项)
+     */
+    @RequestMapping("/select")
+    @RequiresPermissions("performance:performancethreadset")
+    public R select(){
+        //查询列表数据
+        List<PerformanceThreadSetEntity> perTestThreadSetList = performanceThreadSetService.queryNotSetList();
+
+        //添加顶级菜单
+        PerformanceThreadSetEntity root = new PerformanceThreadSetEntity();
+        root.setSetId("0");
+        root.setName("一级菜单");
+        root.setParentId("-1");
+        root.setOpen(true);
+        perTestThreadSetList.add(root);
+
+        return R.ok().put("perTestThreadSetList", perTestThreadSetList);
+    }
 
     /**
      * 信息
@@ -49,7 +82,7 @@ public class PerformanceThreadSetController {
     @RequestMapping("/info/{setId}")
     @RequiresPermissions("performance:performancethreadset:info")
     public R info(@PathVariable("setId") String setId){
-		PerformanceThreadSetEntity performanceThreadSet = performanceThreadSetService.getById(setId);
+		PerformanceThreadSetEntity performanceThreadSet = performanceThreadSetService.queryObject(setId);
 
         return R.ok().put("performanceThreadSet", performanceThreadSet);
     }
@@ -71,7 +104,7 @@ public class PerformanceThreadSetController {
     @RequestMapping("/update")
     @RequiresPermissions("performance:performancethreadset:update")
     public R update(@RequestBody PerformanceThreadSetEntity performanceThreadSet){
-		performanceThreadSetService.updateById(performanceThreadSet);
+		performanceThreadSetService.update(performanceThreadSet);
 
         return R.ok();
     }
@@ -82,8 +115,20 @@ public class PerformanceThreadSetController {
     @RequestMapping("/delete")
     @RequiresPermissions("performance:performancethreadset:delete")
     public R delete(@RequestBody String[] setIds){
-		performanceThreadSetService.removeByIds(Arrays.asList(setIds));
+		performanceThreadSetService.deleteBatch(setIds);
 
+        return R.ok();
+    }
+
+    /**
+     * 将线程组配置同步到对应脚本文件中。
+     * @throws DocumentException
+     */
+    @SysLog("将线程组配置同步到对应脚本文件中")
+    @RequestMapping("/synchronizeJmx")
+    @RequiresPermissions("performance:performancethreadset:synchronizeJmx")
+    public R synchronizeJmx(@RequestBody Long fileId) throws DocumentException {
+        performanceThreadSetService.synchronizeJmx(fileId);
         return R.ok();
     }
 
