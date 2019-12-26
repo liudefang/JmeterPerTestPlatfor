@@ -3,9 +3,11 @@ spring:
         type: com.alibaba.druid.pool.DruidDataSource
         druid:
             driver-class-name: com.mysql.cj.jdbc.Driver
-            url: jdbc:mysql://192.168.172.25:3306/renren_fast_test?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai&autoReconnect=true&failOverReadOnly=false
+            #url: jdbc:mysql://192.168.172.25:3306/renren_fast_test?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai&autoReconnect=true&failOverReadOnly=false
+            url: jdbc:mysql://192.168.226.132:3306/renren_fast?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai&autoReconnect=true&failOverReadOnly=false
             username: root
-            password: per@test
+            #password: per@test
+            password: 123456
             initial-size: 10
             max-active: 100
             min-idle: 10
