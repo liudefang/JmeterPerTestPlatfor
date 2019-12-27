@@ -1,26 +1,25 @@
 package io.renren.modules.performance.controller;
 
-import java.io.File;
-import java.util.*;
-
 import io.renren.common.exception.RRException;
 import io.renren.common.utils.DateUtils;
+import io.renren.common.utils.PageUtils;
+import io.renren.common.utils.R;
 import io.renren.common.validator.ValidatorUtils;
+import io.renren.modules.performance.entity.PerformanceCaseEntity;
 import io.renren.modules.performance.entity.PerformanceCaseFileEntity;
 import io.renren.modules.performance.service.PerformanceCaseFileService;
+import io.renren.modules.performance.service.PerformanceCaseService;
 import io.renren.modules.performance.utils.PerformanceTestUtils;
 import io.renren.modules.performance.utils.QueryList;
 import org.apache.commons.lang.StringUtils;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-
-import io.renren.modules.performance.entity.PerformanceCaseEntity;
-import io.renren.modules.performance.service.PerformanceCaseService;
-import io.renren.common.utils.PageUtils;
-import io.renren.common.utils.R;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
+
+import java.io.File;
+import java.util.*;
 
 
 /**
@@ -53,7 +52,7 @@ public class PerformanceCaseController {
         int total = performanceCaseService.queryTotal(query);
 
         PageUtils pageUtil = new PageUtils(perTestList, total, query.getLimit(), query.getPage());
-
+        System.out.println("======获取的pageUtil："+ pageUtil);
         return R.ok().put("page", pageUtil);
     }
 
@@ -64,6 +63,7 @@ public class PerformanceCaseController {
     @RequestMapping("/info/{caseId}")
     @RequiresPermissions("performance:performancecase:info")
     public R info(@PathVariable("caseId") Long caseId){
+        System.out.println("======获取的caseID："+ caseId);
 		PerformanceCaseEntity performanceCase = performanceCaseService.queryObject(caseId);
 
         return R.ok().put("performanceCase", performanceCase);
