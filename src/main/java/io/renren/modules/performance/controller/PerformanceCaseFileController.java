@@ -69,7 +69,7 @@ public class PerformanceCaseFileController {
      * 修改性能测试用例脚本文件
      */
     @SysLog("修改性能测试用例脚本文件")
-    @RequestMapping("/update")
+    @RequestMapping("/fileUpdate")
     @RequiresPermissions("performance:performancecasefile:fileUpdate")
     public R update(@RequestBody PerformanceCaseFileEntity performanceCaseFile){
         ValidatorUtils.validateEntity(performanceCaseFile);
