@@ -12,6 +12,7 @@ import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -46,6 +47,35 @@ public class PerformanceSlaveController {
         return R.ok().put("page", pageUtil);
     }
 
+    /**
+     * 分布式节点可用列表
+     */
+    @RequestMapping("/list/enable")
+    @RequiresPermissions("performance:performanceslave:slaveList")
+    public R listForStatus(@RequestParam Map<String, Object> params) {
+        // 查询列表数据
+        QueryList query = new QueryList(PerformanceTestUtils.filterParms(params));
+        query.put("status", PerformanceTestUtils.ENABLE);
+        List<PerformanceSlaveEntity> perTestList = performanceSlaveService.queryList(query);
+        int total = performanceSlaveService.queryTotal(query);
+
+        PageUtils pageUtil = new PageUtils(perTestList, total, query.getLimit(), query.getPage());
+
+        return R.ok().put("page", pageUtil);
+    }
+
+    /**
+     * 分布式节点可用数量
+     */
+    @RequestMapping("/list/enableTotal")
+    @RequiresPermissions("performance:performanceslave:slaveList")
+    public R listEnableTotal() {
+        Map<String, Object> query = new HashMap<String, Object>();
+        query.put("status", PerformanceTestUtils.ENABLE);
+        int total = performanceSlaveService.queryTotal(query);
+
+        return R.ok().put("total", total);
+    }
 
     /**
      * 性能测试分布式节点信息

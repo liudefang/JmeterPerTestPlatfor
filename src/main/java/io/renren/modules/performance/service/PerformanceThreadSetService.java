@@ -16,9 +16,8 @@ import java.util.Map;
  * @email sunlightcs@gmail.com
  * @date 2019-12-05 15:27:50
  */
-public interface PerformanceThreadSetService extends IService<PerformanceThreadSetEntity> {
+public interface PerformanceThreadSetService {
 
-    PageUtils queryPage(Map<String, Object> params);
     /**
      * 获取不包含配置项的列表
      */
@@ -33,7 +32,7 @@ public interface PerformanceThreadSetService extends IService<PerformanceThreadS
 
     int queryTotal(Map<String, Object> map);
 
-    //void save(PerformanceThreadSetEntity perTestThreadSet);
+    void save(PerformanceThreadSetEntity perTestThreadSet);
 
     void update(PerformanceThreadSetEntity perTestThreadSet);
 

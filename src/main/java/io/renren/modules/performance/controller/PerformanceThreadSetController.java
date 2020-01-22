@@ -4,6 +4,7 @@ import io.renren.common.annotation.SysLog;
 import io.renren.common.utils.R;
 import io.renren.modules.performance.entity.PerformanceThreadSetEntity;
 import io.renren.modules.performance.service.PerformanceThreadSetService;
+import io.renren.modules.performance.utils.PerformanceTestUtils;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.dom4j.DocumentException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,16 +32,18 @@ public class PerformanceThreadSetController {
     @Autowired
     private PerformanceThreadSetService performanceThreadSetService;
 
+    @Autowired
+    private PerformanceTestUtils performanceTestUtils;
+
     /**
      * 所有配置列表
      */
     @RequestMapping("/list")
     @RequiresPermissions("performance:performancethreadset:list")
     public List<PerformanceThreadSetEntity> list(){
+        List<PerformanceThreadSetEntity> testStressThreadSetList = performanceThreadSetService.queryList(new HashMap<String, Object>());
 
-        List<PerformanceThreadSetEntity> perTestThreadSetList = performanceThreadSetService.queryList(new HashMap<String, Object>());
-
-        return perTestThreadSetList;
+        return testStressThreadSetList;
     }
 
     /**

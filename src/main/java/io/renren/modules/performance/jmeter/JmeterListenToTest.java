@@ -195,6 +195,6 @@ public class JmeterListenToTest implements TestStateListener, Runnable, Remoteab
 
         JmeterRunEntity jmeterRunEntity = PerformanceTestUtils.jMeterEntity4file.get(fileId);
 
-        perTestFileService.stopLocal(fileId, jmeterRunEntity);
+        perTestFileService.stopLocal(fileId, jmeterRunEntity, true);
     }
 }

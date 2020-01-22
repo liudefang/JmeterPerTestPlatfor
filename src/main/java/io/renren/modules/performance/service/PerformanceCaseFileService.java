@@ -83,17 +83,17 @@ public interface PerformanceCaseFileService {
     /**
      * 立即停止
      */
-    void stop(Long[] fileIds);
+    void stop(Long[] fileIds, boolean now);
 
     /**
      * 停止运行
      */
-    void stopAll(Long[] fileIds);
+    void stopAll(boolean now);
 
     /**
      * 立即停止运行
      */
-    void stopAllNow();
+    void stopAllNow(Long[] fileIds);
 
     /**
      * 获取轮询监控结果
@@ -113,7 +113,7 @@ public interface PerformanceCaseFileService {
     /**
      * 相同进程内执行的脚本，可以使用这个方法停止
      */
-    void stopLocal(Long fileId, JmeterRunEntity jmeterRunEntity);
+    void stopLocal(Long fileId, JmeterRunEntity jmeterRunEntity, boolean now);
 
     /**
      * 启动单个脚本
@@ -123,9 +123,11 @@ public interface PerformanceCaseFileService {
     /**
      * 某个进程内执行的脚本，可以使用这个方法停止
      */
-    void stopSingle(Long fileId);
+    void stopSingle(Long fileId, boolean now);
 
-
-
+    /**
+     * 限定SlaveIds，让压测在指定节点进行
+     */
+    void setSlaveId(Long[] slaveIds);
 }
 

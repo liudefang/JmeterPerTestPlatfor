@@ -2,16 +2,14 @@ package io.renren.modules.performance.entity;
 
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import lombok.Data;
 
 import java.io.Serializable;
-import java.util.Date;
 import java.util.List;
-
-import lombok.Data;
 
 /**
  * 线程组管理
- * 
+ *
  * @author mike.liu
  * @email sunlightcs@gmail.com
  * @date 2019-12-05 15:27:50
@@ -22,7 +20,7 @@ public class PerformanceThreadSetEntity implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	/**
-	 * 
+	 *
 	 */
 	@TableId
 	private String setId;

@@ -64,7 +64,7 @@ public class JmeterRunEntity {
      */
     private int numberOfActiveThreads = 0;
 
-    public void stop() {
+    public void stop(boolean now) {
     	// 缓存中变更状态为成功执行
         runStatus = PerformanceTestUtils.RUN_SUCCESS;
         engines.forEach(engine -> {

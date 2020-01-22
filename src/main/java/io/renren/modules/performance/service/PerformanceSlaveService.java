@@ -15,8 +15,6 @@ import java.util.Map;
  */
 public interface PerformanceSlaveService  {
 
-    PageUtils queryPage(Map<String, Object> params);
-
     /**
      * 根据ID，查询子节点信息
      */

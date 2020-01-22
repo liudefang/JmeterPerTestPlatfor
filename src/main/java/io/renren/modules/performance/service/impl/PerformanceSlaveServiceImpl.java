@@ -30,10 +30,6 @@ public class PerformanceSlaveServiceImpl implements PerformanceSlaveService {
     @Autowired
     private PerformanceTestUtils perTestUtils;
 
-    @Override
-    public PageUtils queryPage(Map<String, Object> params) {
-        return null;
-    }
 
     @Override
     public PerformanceSlaveEntity queryObject(Long slaveId) {

@@ -44,6 +44,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.*;
 
 
@@ -60,7 +62,9 @@ public class PerformanceCaseFileServiceImpl implements PerformanceCaseFileServic
 
     private static final String OS_NAME_LC = OS_NAME.toLowerCase(java.util.Locale.ENGLISH);
 
-    //private static final String JMETER_INSTALLATION_DIRECTORY;
+    private static final String JMETER_INSTALLATION_DIRECTORY;
+
+    private static Long[] getSlaveIds = null;
 
     /**
      * 增加了一个static代码块，本身是从Jmeter的NewDriver源码中复制过来的。
@@ -86,6 +90,58 @@ public class PerformanceCaseFileServiceImpl implements PerformanceCaseFileServic
      *
      * 写成static代码块，也是因为类加载（第一次请求时），才会初始化并初始化一次。这也是符合逻辑的。
      */
+    static {
+        final List<URL> jars = new LinkedList<>();
+        final String initial_classpath = System.getProperty(JAVA_CLASS_PATH);
+
+        JMETER_INSTALLATION_DIRECTORY = PerformanceTestUtils.getJmeterHome();
+
+        /*
+         * Does the system support UNC paths? If so, may need to fix them up
+         * later
+         */
+        boolean usesUNC = OS_NAME_LC.startsWith("windows");// $NON-NLS-1$
+
+        // Add standard jar locations to initial classpath
+        StringBuilder classpath = new StringBuilder();
+        File[] libDirs = new File[]{new File(JMETER_INSTALLATION_DIRECTORY + File.separator + "lib"),// $NON-NLS-1$ $NON-NLS-2$
+                new File(JMETER_INSTALLATION_DIRECTORY + File.separator + "lib" + File.separator + "ext"),// $NON-NLS-1$ $NON-NLS-2$
+                new File(JMETER_INSTALLATION_DIRECTORY + File.separator + "lib" + File.separator + "junit")};// $NON-NLS-1$ $NON-NLS-2$
+        for (File libDir : libDirs) {
+            File[] libJars = libDir.listFiles((dir, name) -> name.endsWith(".jar"));
+            if (libJars == null) {
+                new Throwable("Could not access " + libDir).printStackTrace(); // NOSONAR No logging here
+                continue;
+            }
+            Arrays.sort(libJars); // Bug 50708 Ensure predictable order of jars
+            for (File libJar : libJars) {
+                try {
+                    String s = libJar.getPath();
+
+                    // Fix path to allow the use of UNC URLs
+                    if (usesUNC) {
+                        if (s.startsWith("\\\\") && !s.startsWith("\\\\\\")) {// $NON-NLS-1$ $NON-NLS-2$
+                            s = "\\\\" + s;// $NON-NLS-1$
+                        } else if (s.startsWith("//") && !s.startsWith("///")) {// $NON-NLS-1$ $NON-NLS-2$
+                            s = "//" + s;// $NON-NLS-1$
+                        }
+                    } // usesUNC
+
+                    jars.add(new File(s).toURI().toURL());// See Java bug 4496398
+                    classpath.append(CLASSPATH_SEPARATOR);
+                    classpath.append(s);
+                } catch (MalformedURLException e) { // NOSONAR
+//                    EXCEPTIONS_IN_INIT.add(new Exception("Error adding jar:"+libJar.getAbsolutePath(), e));
+                }
+            }
+        }
+
+        // ClassFinder needs the classpath
+        System.setProperty(JAVA_CLASS_PATH, initial_classpath + classpath.toString());
+
+//        new JavassistEngine().fixJmeterStandrdEngine();
+    }
+
     @Autowired
     private PerformanceCaseFileDao performanceCaseFileDao;
 
@@ -293,14 +349,38 @@ public class PerformanceCaseFileServiceImpl implements PerformanceCaseFileServic
         return sb.toString();
     }
 
+
     /**
-     * 停止
+     * 将选中的脚本立即停止
      * @param fileIds
      */
     @Override
-    public void stop(Long[] fileIds) {
+    public void stopAllNow(Long[] fileIds) {
+        if (performanceTestUtils.isUseJmeterScript()) {
+            throw new RRException("Jmeter脚本启动不支持单独停止，请使用全部停止！");
+        } else {
+            Map<Long, JmeterRunEntity> jMeterEntity4file = PerformanceTestUtils.jMeterEntity4file;
+            for (Long fileId : fileIds) {
+                if(!PerformanceTestUtils.RUNNING.equals(queryObject(fileId).getStatus())) {
+                    // 没有政治运行的脚本，无须执行停止操作
+                    continue;
+                }
+                JmeterRunEntity entity = jMeterEntity4file.get(fileId);
+                stopLocal(fileId, entity, true);
+            }
+            resetRunningStatus(jMeterEntity4file);
+        }
+
+    }
+
+    /**
+     * 停止
+     */
+    @Override
+    @Transactional
+    public void stop(Long[] fileIds, boolean now) {
         Arrays.asList(fileIds).stream().forEach(fileId -> {
-            stopSingle(fileId);
+            stopSingle(fileId, now);
         });
 
     }
@@ -310,7 +390,7 @@ public class PerformanceCaseFileServiceImpl implements PerformanceCaseFileServic
      * 同理，也不会回滚这一事务。
      */
     @Override
-    public void stopSingle(Long fileId){
+    public void stopSingle(Long fileId, boolean now){
         if (performanceTestUtils.isUseJmeterScript()){
             throw new RRException("Jmeter脚本启动不支持单独停止，请使用全部停止！");
         } else {
@@ -318,12 +398,18 @@ public class PerformanceCaseFileServiceImpl implements PerformanceCaseFileServic
             if (!jMeterEntity4file.isEmpty()) {
                 jMeterEntity4file.forEach((fileIdRunning, jmeterRunEntity) -> {
                     if (fileId.equals(fileIdRunning)) { // 找到要停止的脚本文件
-                        stopLocal(fileId, jmeterRunEntity);
+                        stopLocal(fileId, jmeterRunEntity, now);
                     }
                 });
             }
             resetRunningStatus(jMeterEntity4file);
         }
+    }
+
+    @Override
+    public void setSlaveId(Long[] slaveIds) {
+        getSlaveIds = slaveIds;
+
     }
 
 
@@ -332,7 +418,7 @@ public class PerformanceCaseFileServiceImpl implements PerformanceCaseFileServic
      */
     @Override
     @Transactional
-    public void stopAll(Long[] fileIds) {
+    public void stopAll(boolean now) {
         String jmeterHomeBin = performanceTestUtils.getJmeterHomeBin();
         String jmeterStopExc = performanceTestUtils.getJmeterExc();
 
@@ -363,7 +449,7 @@ public class PerformanceCaseFileServiceImpl implements PerformanceCaseFileServic
             Map<Long, JmeterRunEntity> jMeterEntity4file = PerformanceTestUtils.jMeterEntity4file;
             if (!jMeterEntity4file.isEmpty()) {
                 jMeterEntity4file.forEach((fileId, jmeterRunEntity) -> {
-                    stopLocal(fileId, jmeterRunEntity);
+                    stopLocal(fileId, jmeterRunEntity, now);
                 });
             }
 
@@ -397,11 +483,6 @@ public class PerformanceCaseFileServiceImpl implements PerformanceCaseFileServic
         }
     }
 
-
-    @Override
-    public void stopAllNow() {
-
-    }
 
     @Override
     public JmeterStatEntity getJmeterStatEntity(Long fileId) {
@@ -501,7 +582,7 @@ public class PerformanceCaseFileServiceImpl implements PerformanceCaseFileServic
      * @param jmeterRunEntity
      */
     @Override
-    public void stopLocal(Long fileId, JmeterRunEntity jmeterRunEntity) {
+    public void stopLocal(Long fileId, JmeterRunEntity jmeterRunEntity, boolean now) {
         PerformanceCaseFileEntity perTestFile = jmeterRunEntity.getperTestFile();
         PerformanceCaseReportsEntity perTestReports = jmeterRunEntity.getStressTestReports();
         JmeterResultCollector jmeterResultCollector = jmeterRunEntity.getJmeterResultCollector();
@@ -519,7 +600,7 @@ public class PerformanceCaseFileServiceImpl implements PerformanceCaseFileServic
         }
         update(perTestFile, perTestReports);
 
-        jmeterRunEntity.stop();
+        jmeterRunEntity.stop(now);
 
         // 需要将结果收集的部分干掉
         PerformanceTestUtils.samplingStatCalculator4File.remove(fileId);
